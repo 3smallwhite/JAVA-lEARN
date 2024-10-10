@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工管理系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        button {
+            margin-right: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<h1>员工管理系统</h1>
+
+<form id="employeeForm">
+    <input type="hidden" id="employeeIndex" value="-1">
+    <label for="name">姓名:</label>
+    <input type="text" id="name" required>
+    <label for="gender">性别:</label>
+    <select id="gender" required>
+        <option value="男">男</option>
+        <option value="女">女</option>
+    </select>
+    <label for="salary">薪资:</label>
+    <input type="number" id="salary" required>
+    <button type="submit">添加/更新员工</button>
+</form>
+
+<table id="employeeTable">
+    <thead>
+    <tr>
+        <th>姓名</th>
+        <th>性别</th>
+        <th>薪资</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- 员工记录将被添加到这里 -->
+    </tbody>
+</table>
+
+<script>
+    let employees = [];
+
+    document.getElementById('employeeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const name = document.getElementById('name').value;
+        const gender = document.getElementById('gender').value;
+        const salary = document.getElementById('salary').value;
+        const index = document.getElementById('employeeIndex').value;
+
+        if (index === "-1") {
+            // 新增员工
+            employees.push({ name, gender, salary });
+        } else {
+            // 更新员工
+            employees[index] = { name, gender, salary };
+        }
+
+        renderTable();
+        resetForm();
+    });
+
+    function renderTable() {
+        const tbody = document.querySelector('#employeeTable tbody');
+        tbody.innerHTML = '';
+
+        employees.forEach((employee, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                    <td>${employee.name}</td>
+                    <td>${employee.gender}</td>
+                    <td>${employee.salary}</td>
+                    <td>
+                        <button onclick="editEmployee(${index})">编辑</button>
+                        <button onclick="deleteEmployee(${index})">删除</button>
+                    </td>
+                `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function editEmployee(index) {
+        const employee = employees[index];
+        document.getElementById('name').value = employee.name;
+        document.getElementById('gender').value = employee.gender;
+        document.getElementById('salary').value = employee.salary;
+        document.getElementById('employeeIndex').value = index;
+    }
+
+    function deleteEmployee(index) {
+        employees.splice(index, 1);
+        renderTable();
+    }
+
+    function resetForm() {
+        document.getElementById('employeeForm').reset();
+        document.getElementById('employeeIndex').value = "-1";
+    }
+</script>
+
+</body>
+</html>

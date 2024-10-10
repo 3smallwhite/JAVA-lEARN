@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Mapper.StaffMapper">
+
+    <resultMap id="staffResultMap" type="Entity.Staff">
+        <result column="post_name" property="postName" />
+        <result column="starting_time" property="startingTime" />
+    </resultMap>
+
+    <select id="selectStaffs" resultMap="staffResultMap">
+        select *
+        from staffs
+        <where>
+            <if test="name != '' and name != null">
+                and name = #{name}
+            </if>
+            <if test="sex != '' and sex != null">
+                and sex = #{sex}
+            </if>
+            <if test="postName != '' and postName != null">
+                and post_name = #{postName}
+            </if>
+            <if test="t1 != null">
+                and starting_time bewteen #{t1} and #{t2}
+            </if>
+            <if test="s1 != null">
+                and salary bewteen #{s1} and #{s2}
+            </if>
+        </where>
+    </select>
+
+</mapper>
