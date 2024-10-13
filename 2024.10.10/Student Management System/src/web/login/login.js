@@ -11,7 +11,9 @@ $("#enter").click(function() {
         data: {"user": JSON.stringify(user)},
         dataType: "json",
         success: function (result) {
-            console.log(result)
+            if (result.status === 'ac') {
+                window.location.replace(result.url);
+            }
         },
         error: function () {
             console.log("error")

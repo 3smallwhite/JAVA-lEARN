@@ -23,6 +23,7 @@ public class LoginFilter implements Filter {
         HttpSession session = httpServletRequest.getSession();
         if (session.getAttribute("token") != null) {
             filterChain.doFilter(servletRequest, servletResponse);
+            return;
         } else {
             httpServletResponse.sendRedirect("http://localhost:8080/login/login.html");
         }

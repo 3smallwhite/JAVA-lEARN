@@ -21,6 +21,7 @@ public class LoginServlet extends HttpServlet {
 
     }
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String jsonStr = request.getParameter("user");
         User user = JSONObject.parseObject(jsonStr, JSONObject.class).toJavaObject(User.class);
@@ -30,17 +31,14 @@ public class LoginServlet extends HttpServlet {
             if (LoginDao.check(user)) {
                 JSONPath.set(jsonObject, "status", "ac");
                 request.getSession().setAttribute("token", "ok");
-                response.sendRedirect("http://localhost:8080/center/center.html");
+                jsonObject.put("url", "http://localhost:8080/center/center.html");
             }
-            else
-                JSONPath.set(jsonObject, "status", "wa");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
+            else {
+                response.getWriter().print(jsonObject);
+            }
+        } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
-        PrintWriter pw = response.getWriter();
-        pw.print(jsonObject);
-        pw.close();
+        response.getWriter().print(jsonObject);
     }
 }

@@ -66,6 +66,14 @@
             <version>3.5.7</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.webjars.npm/vue -->
+        <dependency>
+            <groupId>org.webjars.npm</groupId>
+            <artifactId>vue</artifactId>
+            <version>3.5.12</version>
+        </dependency>
+
+
     </dependencies>
 
 </project>
