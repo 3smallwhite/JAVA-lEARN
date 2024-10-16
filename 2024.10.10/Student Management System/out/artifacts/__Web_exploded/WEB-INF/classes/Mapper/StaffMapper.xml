@@ -23,10 +23,10 @@
                 and post_name = #{postName}
             </if>
             <if test="t1 != null">
-                and starting_time bewteen #{t1} and #{t2}
+                and starting_time between #{t1} and #{t2}
             </if>
             <if test="s1 != null">
-                and salary bewteen #{s1} and #{s2}
+                and salary between #{s1} and #{s2}
             </if>
         </where>
     </select>

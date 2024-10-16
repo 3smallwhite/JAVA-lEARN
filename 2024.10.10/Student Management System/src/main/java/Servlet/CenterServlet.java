@@ -30,6 +30,7 @@ public class CenterServlet extends HttpServlet {
         //response.setHeader("Access-Control-Allow-Origin", "*");
         String jsonStr = request.getParameter("data");
         QueryCondition queryCondition = JSONObject.parseObject(jsonStr, JSONObject.class).toJavaObject(QueryCondition.class);
+        System.out.println(queryCondition);
         JSONArray jsonArray = new JSONArray();
         List<Staff> staffList = StaffDao.selectStaff(queryCondition);
         for (Staff staff: staffList) {

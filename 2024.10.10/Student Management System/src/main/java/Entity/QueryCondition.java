@@ -1,7 +1,10 @@
 package Entity;
 
+import lombok.ToString;
+
 import java.sql.Date;
 
+@ToString
 public class QueryCondition {
     private String name;
     private String sex;

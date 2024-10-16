@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
-    <script src="./vue.js"></script>
+    <script src="../res/vue.js"></script>
     <script src="./center.js"></script>
 </head>
 <body>
@@ -16,14 +16,17 @@
             <label>姓名：</label>
             <input v-model="findCondition.name">
             <label>性别：</label>
-            <input v-model="findCondition.sex">
+            <select v-model="findCondition.sex">
+                <option selected>男</option>
+                <option>女</option>
+            </select>
             <label>岗位：</label>
             <input v-model="findCondition.postName">
         </div>
         <div>
             <label>入职时间</label>
-            <input v-model="findCondition.t1">
-            <input v-model="findCondition.t2">
+            <input type="date" v-model="findCondition.t1">
+            <input type="date" v-model="findCondition.t2">
             <label>薪资</label>
             <input v-model="findCondition.s1">
             <input v-model="findCondition.s2">
@@ -74,6 +77,9 @@
                     salary: null
                 }
             },
+            mounted() {
+                this.find()
+            },
             methods: {
                 find() {
                     $.ajax({
@@ -89,7 +95,6 @@
                                 var staff = JSON.parse(result[i]);
                                 vm.workers.push(staff);
                             }
-
                         },
                         error: function () {
                             console.log("error")
