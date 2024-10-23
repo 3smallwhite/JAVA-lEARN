@@ -4,14 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 
+    <link rel="stylesheet" href="./login.css">
 </head>
 <body>
+<div id="loginApp">
+    <el-form label-width="100px">
+        <el-row>
+            <el-col :span="8" :offset="8">
+                <el-form-item label="账号">
+                    <el-input type="text" v-model="user.user"></el-input>
+                </el-form-item>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="8" :offset="8">
+                <el-form-item label="密码">
+                    <el-input type="password" v-model="user.password" :placeholder="tips"></el-input>
+                </el-form-item>
+            </el-col>
+        </el-row>
+        <el-form-item>
+            <el-button type="primary" @click="send">登入</el-button>
+        </el-form-item>
+    </el-form>
+</div>
 
-    <div>用户名：<input id="user"/></div>
-    <div>密码：<input id="password"/></div>
-    <div><button id="enter">登入</button></div>
-    <script src="login.js"></script>
+<script>
+    var vm = new Vue({
+        el: "#loginApp",
+        data: {
+            user: {
+                'user': null,
+                'password': null
+            },
+            tips: null
+        },
+        methods: {
+            send() {
+                $.ajax({
+                    url: 'http://localhost:8080/Servlet/login',
+                    type: 'POST',
+                    typeData: 'json',
+                    data: vm.user,
+                    success: function (result) {
+                        message = JSON.parse(result)
+                        if (message.status === 'ac') {
+                            location.href = message.url
+                        } else {
+                            vm.user.password = ''
+                            vm.tips = '密码错误'
+                        }
+                    },
+                    error: function () {
+                        console.log(error)
+                    }
+                })
+            }
+        }
+    })
+</script>
 </body>
 </html>

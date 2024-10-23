@@ -18,25 +18,23 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.List;
 
-@WebServlet("/center/main")
-public class CenterServlet extends HttpServlet {
+@WebServlet("/center/upt")
+public class UptStaffServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //response.setHeader("Access-Control-Allow-Origin", "*");
+        String jsonStr = request.getParameter("data");
+        Staff staff = JSONObject.parseObject(jsonStr, JSONObject.class).toJavaObject(Staff.class);
 
+        JSONObject jsonObject = new JSONObject();
+        boolean b = StaffDao.updateStaff(staff);
+        if (b) jsonObject.put("status", "ac");
+        else jsonObject.put("status", "wa");
+        response.getWriter().print(jsonObject);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //response.setHeader("Access-Control-Allow-Origin", "*");
-        String jsonStr = request.getParameter("data");
-        QueryCondition queryCondition = JSONObject.parseObject(jsonStr, JSONObject.class).toJavaObject(QueryCondition.class);
-        System.out.println(queryCondition);
-        JSONArray jsonArray = new JSONArray();
-        List<Staff> staffList = StaffDao.selectStaff(queryCondition);
-        for (Staff staff: staffList) {
-            jsonArray.add(JSONObject.toJSONString(staff));
-        }
-        response.getWriter().print(jsonArray);
 
     }
 }

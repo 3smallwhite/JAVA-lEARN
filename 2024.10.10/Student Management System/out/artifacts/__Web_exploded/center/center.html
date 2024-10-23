@@ -1,109 +1,69 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <script src="../res/vue.js"></script>
-    <script src="./center.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="./center.css">
 </head>
 <body>
-    <div id="app">
-        <div>
-            <label>姓名：</label>
-            <input v-model="findCondition.name">
-            <label>性别：</label>
-            <select v-model="findCondition.sex">
-                <option selected>男</option>
-                <option>女</option>
-            </select>
-            <label>岗位：</label>
-            <input v-model="findCondition.postName">
-        </div>
-        <div>
-            <label>入职时间</label>
-            <input type="date" v-model="findCondition.t1">
-            <input type="date" v-model="findCondition.t2">
-            <label>薪资</label>
-            <input v-model="findCondition.s1">
-            <input v-model="findCondition.s2">
-            <button @click.stop="find()">查询</button>
-        </div>
+<div id="show_table">
+    <el-container style="height: 800px">
+        <el-aside width="200px">
+            <el-menu
+                    default-active="1"
+                    background-color="#545c64"
+                    text-color="#fff"
+                    active-text-color="#ffd04b">
+                <el-menu-item index="1" @click="pageAt=0">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">编辑员工信息</span>
+                </el-menu-item>
+                <el-menu-item index="2">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title" @click="pageAt=1">新增员工信息</span>
+                </el-menu-item>
+                <el-menu-item index="3">
+                    <i class="el-icon-menu"></i>
+                    <span slot="title">个人中心</span>
+                </el-menu-item>
+            </el-menu>
+        </el-aside>
+        <el-container>
+            <el-header style="height: 80px">
+            </el-header>
+            <el-main>
+                <iframe :src="page" width="100%" height="100%"></iframe>
+            </el-main>
+        </el-container>
+    </el-container>
+</div>
 
-        <table>
-            <tr>
-                <th>姓名</th>
-                <th>年龄</th>
-                <th>性别</th>
-                <th>入职时间</th>
-                <th>岗位类别</th>
-                <th>薪水</th>
-            </tr>
-            <tr v-for="item in workers">
-                <th> {{ item.name }} </th>
-                <th> {{item.age}} </th>
-                <th> {{item.sex}} </th>
-                <th> {{item.startingTime}} </th>
-                <th> {{item.postName}} </th>
-                <th> {{item.salary}} </th>
-            </tr>
-        </table>
-    </div>
-
-    <script>
-        var vm = new Vue({
-            el: '#app',
-            data: {
-                workers: [],
-                findCondition: {
-                    'name': null,
-                    'sex': null,
-                    'postName': null,
-                    't1': null,
-                    't2': null,
-                    's1': null,
-                    's2': null
-                },
-                staff: {
-                    id: null,
-                    name: null,
-                    age: null,
-                    sex: null,
-                    startingTime: null,
-                    postName: null,
-                    salary: null
-                }
-            },
-            mounted() {
-                this.find()
-            },
-            methods: {
-                find() {
-                    $.ajax({
-                        type: 'GET',
-                        url: 'http://localhost:8080/center/main',
-                        data: {
-                            'data': JSON.stringify(this.findCondition)
-                        },
-                        dataType: "json",
-                        success: function (result) {
-                            vm.workers = []
-                            for (var i = 0; i < result.length; ++i) {
-                                var staff = JSON.parse(result[i]);
-                                vm.workers.push(staff);
-                            }
-                        },
-                        error: function () {
-                            console.log("error")
-                        }
-                    })
-                }
+<script>
+    new Vue({
+        el: "#show_table",
+        data: {
+            pages: [
+                '../pages/page1.html',
+                '../pages/page2.html',
+                '../pages/page3.html',
+            ],
+            pageAt: 0,         // 0表示查看员工信息 1表示新增员工信息 2表示修改员工信息
+        },
+        methods: {
+        },
+        computed: {
+            page: function () {
+                return this.pages[this.pageAt]
             }
-        })
-    </script>
-
+        }
+    })
+</script>
 </body>
 </html>

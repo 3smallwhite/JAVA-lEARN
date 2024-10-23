@@ -53,6 +53,10 @@ public class StaffDao {
         return staffMapper.selectStaffs(queryCondition);
     }
 
+    public static Staff selectStaff(Integer id) {
+        return staffMapper.selectById(id);
+    }
+
     public static Boolean deleteStaff(Staff staff) {
         PostMapper postMapper = session.getMapper(PostMapper.class);
         Integer num = postMapper.selectStaffNum(staff.getPostName()) - 1;

@@ -11,6 +11,8 @@ public interface StaffMapper {
     @Select("select * from staffs")
     List<Staff> selectAll();
 
+    Staff selectById(@Param("id") Integer id);
+
     @Insert("insert into staffs values(#{id}, #{name}, #{age}, #{sex}, #{startingTime}, #{postName}, #{salary})")
     int insertAStaff(Staff staff);
 

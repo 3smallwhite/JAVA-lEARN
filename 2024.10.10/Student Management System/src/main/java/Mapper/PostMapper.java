@@ -1,10 +1,16 @@
 package Mapper;
 
+import Entity.Post;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 public interface PostMapper {
+    @Select("select * from post")
+    List<Post> selectAll();
+
     @Select("select id from post where name = #{name}")
     Integer selectId(String name);
 

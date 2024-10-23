@@ -1,0 +1,9 @@
+
+
+.el-form-item {
+    text-align: center;
+}
+
+.el-input__inner::placeholder {
+    color: red;
+}

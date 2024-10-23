@@ -33,10 +33,10 @@ public class Main {
 
         StaffMapper staffMapper = session.getMapper(StaffMapper.class);
 
-//        // 测试新增员工
-//        if (StaffDao.newAStaff(new Staff(0, "zhangsan", 19, "men", new Date(new java.util.Date().getTime()), "It", 4000f))) {
-//            System.out.println("yes");
-//        }
+        // 测试新增员工
+        if (StaffDao.newAStaff(new Staff(null, "zhan1gsan", 19, "men", new Date(new java.util.Date().getTime()), "It", 4000f))) {
+            System.out.println(new Date(1727712000000L));
+        }
 
 //        // 测试查询员工
 //        if (true) {
@@ -45,6 +45,6 @@ public class Main {
 //        }
 
         // 测试删除员工
-        System.out.println(staffMapper.selectStaffs(new QueryCondition()));
+//        System.out.println(staffMapper.selectStaffs(new QueryCondition()));
     }
 }

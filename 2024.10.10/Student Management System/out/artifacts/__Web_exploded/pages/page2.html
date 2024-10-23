@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<div id="page2App">
+    <el-form label-position="right" style="height: 400px">
+        <el-form-item label="姓名">
+            <el-input v-model="staff.name" :placeholder="name_tip"></el-input>
+        </el-form-item>
+        <el-form-item label="年龄">
+            <el-input class="tip" v-model="staff.age" :placeholder="age_tip"></el-input>
+        </el-form-item>
+        <el-form-item label="性别">
+            <template>
+                <el-select v-model="staff.sex" placeholder="性别">
+                    <el-option
+                            key="man"
+                            label="男"
+                            value="男">
+                    </el-option>
+                    <el-option
+                            key="women"
+                            label="女"
+                            value="女">
+                    </el-option>
+                </el-select>
+            </template>
+        </el-form-item>
+        <el-form-item label="岗位类型">
+            <template>
+                <el-select v-model="staff.postName" placeholder="请选择">
+                    <el-option
+                            v-for="item in posts"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.name">
+                    </el-option>
+                </el-select>
+            </template>
+        </el-form-item>
+        <el-form-item label="入职时间">
+            <el-date-picker
+                    v-model="staff.startingTime"
+                    type="date"
+                    style="width: 300px"
+                    placeholder="选择日期">
+            </el-date-picker>
+        </el-form-item>
+        <el-form-item label="薪资">
+            <el-input v-model="staff.salary" :placeholder="salary_tip"></el-input>
+            <div style="text-align: right">
+                <el-button type="primary" @click="insert">新增</el-button>
+            </div>
+        </el-form-item>
+    </el-form>
+</div>
+
+<script>
+    var vm = new Vue({
+        el: "#page2App",
+        data: {
+            staff: {
+                name: null,
+                age: null,
+                sex: null,
+                postName: null,
+                startingTime: null,
+                salary: null
+            },
+            posts: [],
+            age_tip: null,
+            salary_tip: null,
+            name_tip: null,
+        },
+        created: function () {
+            $.ajax({
+                url: 'http://localhost:8080/center/posts',
+                type: 'GET',
+                dataTypes: 'json',
+                data: '',
+                success: function (result) {
+                    result = JSON.parse(result)
+                    for (let key in result) {
+                        vm.posts.push(result[key].post)
+                    }
+                },
+                error: function (e) {
+                    console.log('get posts error')
+                }
+            })
+        },
+        methods: {
+            insert: function () {
+                if (this.staff.name === null) {
+                    this.name_tip = '请输入姓名'
+                    return;
+                }
+                if (isNaN(this.staff.age) || this.staff.age < 18 || this.staff.age > 64) {
+                    this.staff.age = ''
+                    this.age_tip = '请输入整数(18-64)'
+                    return;
+                }
+                if (this.staff.salary === null || isNaN(this.staff.salary)) {
+                    this.staff.salary = ''
+                    this.salary_tip = '请输入浮点数'
+                    return;
+                }
+                if (this.staff.sex === null || this.staff.startTime === null || this.postName === null) return;
+                data={
+                    'data': JSON.stringify(this.staff)
+                };
+                $.ajax({
+                    url: 'http://localhost:8080/center/insert',
+                    type: 'POST',
+                    dataTypes: 'json',
+                    data: data,
+                    success: function (e) {
+                        console.log(e)
+                        for (let key in vm.staff) {
+                            vm.staff[key] = null
+                        }
+                        alert('新增员工信息成功')
+                    },
+                    error: function (e) {
+                        console.log('insert error')
+                    }
+                })
+            },
+        }
+    })
+</script>
+
+<style>
+    .el-input {
+        width: 300px;
+    }
+    #page2App {
+        text-align: left;
+    }
+    .el-input__inner::placeholder {
+        color: red;
+    }
+</style>
+</body>
+</html>

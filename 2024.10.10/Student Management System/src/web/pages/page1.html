@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+<div id="page1App">
+    <el-form :inline="true">
+        <el-form-item label="姓名" style="margin-top: 20px">
+            <el-input v-model="queryCondition.name"></el-input>
+        </el-form-item>
+        <el-form-item label="性别" label-width="40px" style="margin-top: 20px">
+            <el-select v-model="queryCondition.sex">
+                <el-option value="男"></el-option>
+                <el-option value="女"></el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item label="岗位类型" label-width="80px" style="margin-top: 20px">
+            <el-input v-model="queryCondition.postName"></el-input>
+        </el-form-item>
+        <el-form-item label="入职时间" label-width="80px" style="margin-top: 20px">
+            <el-date-picker
+                    style="width: 120px"
+                    v-model="queryCondition.t1"
+                    type="date"
+                    placeholder="起始时间">
+            </el-date-picker>
+            <el-date-picker
+                    style="width: 120px"
+                    v-model="queryCondition.t2"
+                    type="date"
+                    placeholder="终止时间">
+            </el-date-picker>
+        </el-form-item>
+        <el-form-item label="薪资" label-width="40px" style="margin-top: 20px">
+            <el-input placeholder="最低薪资" v-model="queryCondition.s1"></el-input>
+            <span>——</span>
+            <el-input placeholder="最高薪资" v-model="queryCondition.s2"></el-input>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="select" style="margin-top: 20px">查询</el-button>
+        </el-form-item>
+    </el-form>
+    <el-table
+            :data="staffs.slice((currentPage - 1) * pageSize, currentPage * pageSize)"
+            style="width: 100%">
+        <el-table-column
+                prop="name"
+                label="姓名"
+                width="180">
+            <template slot-scope="scope">
+                <i class="el-icon-s-custom"></i>
+                <span style="margin-left: 10px">{{ scope.row.name }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="age"
+                label="年龄"
+                width="180">
+            <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.age }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="sex"
+                label="性别">
+            <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.sex }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="starting_time"
+                label="入职时间">
+            <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.startingTime }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="post_name"
+                label="岗位类型">
+            <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.postName }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column
+                prop="salary"
+                label="薪资">
+            <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.salary }}</span>
+            </template>
+        </el-table-column>
+        <el-table-column label="操作">
+            <template slot-scope="scope">
+                <el-button type="text" @click="dialogVisible = true;upt1(scope.row.id)">编辑</el-button>
+                <el-dialog
+                        title="编辑"
+                        :visible.sync="dialogVisible"
+                        width="30%">
+                    <el-form label-position="right" style="height: 400px">
+                        <el-form-item label="姓名">
+                            <el-input v-model="staff.name" :placeholder="name_tip"></el-input>
+                        </el-form-item>
+                        <el-form-item label="年龄">
+                            <el-input class="tip" v-model="staff.age" :placeholder="age_tip"></el-input>
+                        </el-form-item>
+                        <el-form-item label="性别">
+                            <template>
+                                <el-select v-model="staff.sex" placeholder="性别">
+                                    <el-option
+                                            key="man"
+                                            label="男"
+                                            value="男">
+                                    </el-option>
+                                    <el-option
+                                            key="women"
+                                            label="女"
+                                            value="女">
+                                    </el-option>
+                                </el-select>
+                            </template>
+                        </el-form-item>
+                        <el-form-item label="岗位类型">
+                            <template>
+                                <el-select v-model="staff.postName" placeholder="请选择">
+                                    <el-option
+                                            v-for="item in posts"
+                                            :key="item.id"
+                                            :label="item.name"
+                                            :value="item.name">
+                                    </el-option>
+                                </el-select>
+                            </template>
+                        </el-form-item>
+                        <el-form-item label="入职时间">
+                            <el-date-picker
+                                    v-model="staff.startingTime"
+                                    type="date"
+                                    style="width: 300px"
+                                    placeholder="选择日期">
+                            </el-date-picker>
+                        </el-form-item>
+                        <el-form-item label="薪资">
+                            <el-input v-model="staff.salary" :placeholder="salary_tip"></el-input>
+                        </el-form-item>
+                    </el-form>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button @click="dialogVisible = false">取 消</el-button>
+                        <el-button type="primary" @click="dialogVisible = false;upt2()">确 定</el-button>
+                    </span>
+                </el-dialog>
+                <el-button
+                        size="mini"
+                        type="danger"
+                        @click="delet(scope.row)">删除
+                </el-button>
+            </template>
+        </el-table-column>
+    </el-table>
+    <el-pagination
+            background
+            layout="prev, pager, next"
+            :total="staffs.length"
+            :page-size="pageSize"
+            :current-page="currentPage"
+            @current-change="handleCurrentChange">
+    </el-pagination>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search)
+    var vm = new Vue({
+        el: "#page1App",
+        data: {
+            staffs: [],
+            queryCondition: {
+                name: null,
+                sex: null,
+                postName: null,
+                t1: null,
+                t2: null,
+                s1: null,
+                s2: null
+            },
+            pageSize: 8,
+            currentPage: 1,
+            dialogVisible: false,
+            staff: {
+                id: null,
+                name: null,
+                age: null,
+                sex: null,
+                postName: null,
+                startTime: null,
+                salary: null
+            },
+            posts: [],
+            age_tip: null,
+            salary_tip: null,
+            name_tip: null,
+        },
+        created: function () {
+            $.ajax({
+                url: 'http://localhost:8080/center/posts',
+                type: 'GET',
+                dataTypes: 'json',
+                data: '',
+                success: function (result) {
+                    result = JSON.parse(result)
+                    for (let key in result) {
+                        vm.posts.push(result[key].post)
+                    }
+                },
+                error: function (e) {
+                    console.log('get posts error')
+                }
+            })
+        },
+        methods: {
+            select: function () {
+                data = {
+                    'data': JSON.stringify(this.queryCondition)
+                }
+                $.ajax({
+                    url: 'http://localhost:8080/center/find',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: data,
+                    success: function (e) {
+                        vm.staffs = []
+                        for (var i = 0; i < e.length; i++) {
+                            staff = e[i]
+                            vm.staffs.push(JSON.parse(staff))
+                        }
+                    },
+                    error: function (e) {
+                        console.log('select error')
+                    }
+                })
+            },
+            delet: function (staff) {
+                data = {
+                    'data': JSON.stringify(staff)
+                }
+                $.ajax({
+                    url: 'http://localhost:8080/center/delete',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    success: function (e) {
+                        console.log(e)
+                    },
+                    error: function () {
+                        console.log('delete error')
+                    }
+                })
+                for (var i = 0; i < this.staffs.length; i++) {
+                    if (this.staffs[i].id == staff.id) {
+                        this.staffs.splice(i, 1);
+                        break;
+                    }
+                }
+            },
+            upt1: function (id) {
+                data = {
+                    'data': id
+                }
+                $.ajax({
+                    url: 'http://localhost:8080/center/sela',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: data,
+                    success: function (e) {
+                        console.log(e)
+                        vm.staff = e.staff;
+                    },
+                    error: function () {
+                        console.log('upt1 error')
+                    }
+                })
+            },
+            upt2: function () {
+                if (this.staff.name === null) {
+                    this.name_tip = '请输入姓名'
+                    return;
+                }
+                if (isNaN(this.staff.age) || this.staff.age < 18 || this.staff.age > 64) {
+                    this.staff.age = ''
+                    this.age_tip = '请输入整数(18-64)'
+                    return;
+                }
+                if (this.staff.salary === null || isNaN(this.staff.salary)) {
+                    this.staff.salary = ''
+                    this.salary_tip = '请输入浮点数'
+                    return;
+                }
+                if (this.staff.sex === null || this.staff.startTime === null || this.postName === null) return;
+                data = {
+                    'data': JSON.stringify(this.staff)
+                }
+                $.ajax({
+                    url: 'http://localhost:8080/center/upt',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    success: function (e) {
+                        console.log(e)
+                    },
+                    error: function () {
+                        console.log('upt2 error')
+                    }
+                })
+            },
+            handleCurrentChange(currentPage) {
+                this.currentPage = currentPage;
+            },
+        }
+    })
+</script>
+<style>
+
+    .el-input {
+        width: 140px;
+    }
+</style>
+</body>
+</html>

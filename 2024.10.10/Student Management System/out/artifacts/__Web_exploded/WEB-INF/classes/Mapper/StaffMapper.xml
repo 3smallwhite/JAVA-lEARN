@@ -31,4 +31,8 @@
         </where>
     </select>
 
+    <select id="selectById" resultMap="staffResultMap">
+        select * from staffs where id = #{id}
+    </select>
+
 </mapper>
