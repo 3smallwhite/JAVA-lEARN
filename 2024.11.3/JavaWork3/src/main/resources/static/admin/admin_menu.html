@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../lib/index.css">
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/index.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="../lib/jquery.js"></script>
+
+
+    <link rel="stylesheet" href="./admin_menu.css">
+</head>
+<body>
+<div id="admin">
+    <el-container>
+        <el-header>
+            教务管理系统
+        </el-header>
+        <el-container style="height: 755px">
+            <el-aside width="200px">
+                <el-menu
+                        default-active="1"
+                        class="el-menu-vertical-demo"
+                        background-color="#545c64"
+                        text-color="#fff"
+                        active-text-color="#ffd04b">
+                    <el-menu-item index="1" @click="pageAt=0">
+                        <span slot="title">账号信息管理</span>
+                    </el-menu-item>
+                    <el-menu-item index="2" @click="pageAt=1">
+                        <span slot="title">专业信息管理</span>
+                    </el-menu-item>
+                    <el-menu-item index="3" @click="pageAt=2">
+                        <span slot="title">课程信息管理</span>
+                    </el-menu-item>
+                </el-menu>
+            </el-aside>
+            <el-main>
+                <iframe :src="pages[pageAt]" style="height: 100%; width: 100%"></iframe>
+            </el-main>
+        </el-container>
+    </el-container>
+    </el-container>
+</div>
+<script>
+    const paramsString = window.location.search
+    var searchParams = new URLSearchParams(paramsString)
+    headparam = searchParams.get("headparam")
+    var vm = new Vue({
+        el: '#admin',
+        data: {
+            pageAt: 0,
+            pages: [
+                'http://localhost:8080/admin/admin_user.html?headparam=' + headparam,
+                'http://localhost:8080/admin/admin_major.html?headparam=' + headparam,
+                'http://localhost:8080/admin/admin_course.html?headparam=' + headparam,
+            ]
+        },
+        methods: {
+
+        }
+    })
+</script>
+</body>
+</html>

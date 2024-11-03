@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../lib/index.css">
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/index.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="../lib/jquery.js"></script>
+</head>
+<body>
+<div id="adminMajor">
+    <template>
+
+        <el-dialog
+                title="新增"
+                :visible.sync="addDialog"
+                width="30%">
+            <el-form>
+                <el-form-item label="专业名称">
+                    <el-input v-model="major.name"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="addDialog = false">取 消</el-button>
+                <el-button type="primary" @click="addDialog = false;add()">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-row>
+            <el-col :span="4">
+                <el-button @click="major.name = null;addDialog = true;" type="primary">新增</el-button>
+            </el-col>
+            <el-col :offset="12" :span="4">
+                <el-input v-model="searchCondition" placeholder="请输入关键字"></el-input>
+            </el-col>
+            <el-col :offset="1" :span="3">
+                <el-button @click="fin(searchCondition)" type="success">查询</el-button>
+            </el-col>
+        </el-row>
+    </template>
+    <template>
+
+        <el-table
+                :data="majors"
+                stripe
+                style="width: 100%">
+            <el-table-column
+                    prop="id"
+                    label="专业编号"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="name"
+                    label="专业名称"
+                    width="180">
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button
+                            size="mini"
+                            type="primary"
+                            @click="major = scope.row;uptDialog = true;">编辑
+                    </el-button>
+                    <el-button
+                            size="mini"
+                            type="danger"
+                            @click="major = scope.row;delDialog = true;">删除
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <el-dialog
+                title="编辑"
+                :visible.sync="uptDialog"
+                width="30%">
+            <el-form>
+                <el-form-item label="专业名称">
+                    <el-input v-model="major.name"></el-input>
+                </el-form-item>
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="uptDialog = false">取 消</el-button>
+                <el-button type="primary" @click="uptDialog = false;upt()">确 定</el-button>
+            </span>
+        </el-dialog>
+
+        <el-dialog
+                title="警告"
+                :visible.sync="delDialog"
+                width="30%">
+            <span>确认删除</span>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="delDialog = false">取 消</el-button>
+                <el-button type="danger" @click="delDialog = false;del(major.id)">确 定</el-button>
+            </span>
+        </el-dialog>
+    </template>
+</div>
+<script>
+    const paramsString = window.location.search
+    var searchParams = new URLSearchParams(paramsString)
+    headparam = searchParams.get("headparam")
+    let vm = new Vue({
+        el: '#adminMajor',
+        data: {
+            majors: [],
+            searchCondition: null,
+            addDialog: false,
+            uptDialog: false,
+            delDialog: false,
+            major: {
+                id: null,
+                name: null,
+            }
+
+        },
+        created: function () {
+            $.ajax({
+                url: 'http://localhost:8080/major/get',
+                type: 'GET',
+                success: function (result) {
+                    for (var i = 0; i < result.data.length; i++) {
+                        vm.majors.push(result.data[i])
+                    }
+                },
+                error: function () {
+                    console.log('get major error')
+                }
+            })
+        },
+        methods: {
+            add: function () {
+                $.ajax({
+                    url: 'http://localhost:8080/major/admin/add',
+                    type: 'POST',
+                    headers: {
+                        'token': headparam
+                    },
+                    data: vm.major,
+                    success: function (result) {
+                        vm.major.name = null
+
+                    },
+                    error: function () {
+                        console.log('add major error')
+                    }
+                })
+                location.reload()
+            },
+            upt: function () {
+                $.ajax({
+                    url: 'http://localhost:8080/major/admin/upt',
+                    type: 'POST',
+                    headers: {
+                        'token': headparam
+                    },
+                    data: vm.major,
+                    success: function (result) {
+                        vm.major.name = null
+                        console.log(result)
+                    },
+                    error: function () {
+                        console.log('update major error')
+                    }
+                })
+            },
+            del: function (id) {
+                $.ajax({
+                    url: 'http://localhost:8080/major/admin/del',
+                    type: 'POST',
+                    headers: {
+                        'token': headparam
+                    },
+                    data: {
+                        'id': id
+                    },
+                    success: function (result) {
+                        if (result.code === 0) {
+                            vm.delTip(result.message);
+                        }
+                    },
+                    error: function () {
+                        console.log('delete major error')
+                    }
+                })
+            },
+            fin: function (searchCondition) {
+                $.ajax({
+                    url: 'http://localhost:8080/major/admin/fin',
+                    type: 'GET',
+                    headers: {
+                        'token': headparam
+                    },
+                    data: {
+                        'findCondition': searchCondition,
+                    },
+                    success: function (result) {
+                        vm.majors = []
+                        for (var i = 0; i < result.data.length; i++) {
+                            vm.majors.push(result.data[i])
+                        }
+                    },
+                    error: function () {
+                        console.log('find major error')
+                    }
+                })
+            },
+            delTip: function (message) {
+                this.$message({
+                    message: message,
+                    type: 'warning'
+                });
+
+            }
+        }
+    })
+</script>
+</body>
+</html>

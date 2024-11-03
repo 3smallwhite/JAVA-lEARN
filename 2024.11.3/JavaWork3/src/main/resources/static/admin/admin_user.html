@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../lib/index.css">
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/index.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="../lib/jquery.js"></script>
+</head>
+<body>
+<div id="adminUser">
+    <template>
+        <el-row>
+            <el-col :offset="12" :span="4">
+                <el-input v-model="searchCondition" placeholder="请输入关键字"></el-input>
+            </el-col>
+            <el-col :offset="1" :span="3">
+                <el-button @click="fin(searchCondition)" type="success">查询</el-button>
+            </el-col>
+        </el-row>
+    </template>
+    <template>
+        <el-table
+                :data="users"
+                stripe
+                style="width: 100%">
+            <el-table-column
+                    prop="username"
+                    label="账号"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="password"
+                    label="密码"
+                    width="180">
+            </el-table-column>
+            <el-table-column
+                    prop="role"
+                    label="角色">
+            </el-table-column>
+            <el-table-column label="操作">
+                <template slot-scope="scope">
+                    <el-button
+                            size="mini"
+                            :disabled="scope.row.role === 'admin' ? true : false"
+                            type="primary"
+                            @click="user=scope.row;init();"
+                            @click="">重置密码
+                    </el-button>
+<!--                    <el-button-->
+<!--                            size="mini"-->
+<!--                            :disabled="scope.row.role === 'admin' ? true : false"-->
+<!--                            type="danger"-->
+<!--                            @click="">删除-->
+<!--                    </el-button>-->
+                </template>
+            </el-table-column>
+        </el-table>
+
+    </template>
+</div>
+<script>
+    const paramsString = window.location.search
+    var searchParams = new URLSearchParams(paramsString)
+    headparam = searchParams.get("headparam")
+    let vm = new Vue({
+        el: '#adminUser',
+        data: {
+            users: [],
+            searchCondition: null,
+            addDialog: false,
+            user: {
+                username: null,
+                password: null,
+                role: null,
+            }
+        },
+        created() {
+            $.ajax({
+                url: 'http://localhost:8080/admin/user',
+                type: 'GET',
+                headers: {
+                    'token': headparam
+                },
+                success: function (result) {
+                    for (var i = 0; i < result.data.length; i++) {
+                        vm.users.push(result.data[i])
+                    }
+                },
+                error: function () {
+                    console.log('get user error')
+                }
+            })
+        },
+        methods: {
+            init: function () {
+                $.ajax({
+                    url: 'http://localhost:8080/admin/init',
+                    type: 'POST',
+                    data: vm.user,
+                    success: function () {
+
+                    },
+                    error: function () {
+                        console.log('init error')
+                    }
+                })
+            },
+
+            fin: function (searchCondition) {
+                $.ajax({
+                    url: 'http://localhost:8080/admin/admin/fin',
+                    type: 'GET',
+                    headers: {
+                        'token': headparam
+                    },
+                    data: {
+                        'findCondition': searchCondition,
+                    },
+                    success: function (result) {
+                        vm.users = []
+                        console.log(result)
+                        for (var i = 0; i < result.data.length; i++) {
+                            vm.users.push(result.data[i])
+                        }
+                    },
+                    error: function () {
+                        console.log('find major error')
+                    }
+                })
+            },
+        }
+    })
+</script>
+</body>
+</html>
