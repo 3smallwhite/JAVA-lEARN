@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../lib/index.css">
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/index.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="../lib/jquery.js"></script>
+
+    <link rel="stylesheet" href="./menu.css">
+</head>
+<body>
+<div id="menuApp">
+    <el-container>
+        <el-header>
+            <el-menu
+                    class="el-menu-demo"
+                    mode="horizontal"
+                    background-color="#545c64"
+                    text-color="#fff"
+                    active-text-color="#ffd04b">
+                <template>
+                    <el-row>
+                        <el-col :span="3">
+                            <el-popover
+                                    placement="top-start"
+                                    title="已选课程"
+                                    trigger="hover"
+                                    :content="'已选课程数：'+courses.length+' 学分总和：'+sum[0]">
+                                <el-menu-item index="1" slot="reference" @click="pageAt=0">已选课程</el-menu-item>
+                            </el-popover>
+                        </el-col>
+                        <el-col :span="3">
+                        <el-popover
+                                placement="top-start"
+                                title="已选课程"
+                                trigger="hover"
+                                :content="'未选课程数：'+notcourses.length+' 学分总和：'+sum[1]">
+                            <el-menu-item index="2" slot="reference" @click="pageAt=1">未选课程</el-menu-item>
+                        </el-popover>
+                    </el-col>
+                    </el-row>
+                </template>
+<!--                <el-menu-item index="3" disabled="true">{{tip[pageAt]}}{{sum[pageAt]}}</el-menu-item>-->
+            </el-menu>
+        </el-header>
+        <el-main style="height: 800px">
+            <template>
+                <el-table
+                        :data="pageAt === 0 ? courses : notcourses"
+                        style="width: 100%">
+                    <el-table-column
+                            label="课程名称"
+                            width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column
+                            label="课程学分"
+                            width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">{{ scope.row.score }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button
+                                    :type="pageAt === 0 ? 'danger' : 'primary'"
+                                    size="mini"
+                                    @click="opt(scope.row.id)"> {{edit[pageAt]}}
+                            </el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </template>
+        </el-main>
+    </el-container>
+</div>
+
+<script>
+    const paramsString = window.location.search
+    var searchParams = new URLSearchParams(paramsString)
+    headparam = searchParams.get("headparam")
+    var vm = new Vue({
+        el: "#menuApp",
+        data: {
+            pageAt: 0,
+            courses: [],
+            notcourses: [],
+            edit: [
+                '退课',
+                '选课',
+            ],
+            tip: [
+                '已选课程学分：',
+                '未选课程学分',
+            ],
+            sum: [0, 0],
+        },
+        created() {
+            $.ajax({
+                url: 'http://localhost:8080/course/mycourses',
+                type: 'GET',
+                headers: {
+                    'token': headparam
+                },
+                success: function (result) {
+                    if (result.code === 1) {
+                        for (var i in result.data) {
+                            vm.courses.push(result.data[i])
+                            vm.sum[0] += result.data[i].score
+                        }
+                    }
+                    else console.log(result.message)
+                },
+                error: function () {
+                    console.log('get my course error')
+                }
+            })
+            $.ajax({
+                url: 'http://localhost:8080/course/notmycourse',
+                type: 'GET',
+                headers: {
+                    'token': headparam
+                },
+                success: function (result) {
+                    if (result.code === 1) {
+                        for (var i in result.data) {
+                            vm.notcourses.push(result.data[i])
+                            vm.sum[1] += result.data[i].score
+                        }
+                    }
+                    else console.log(result.message)
+                },
+                error: function () {
+                    console.log('get my course error')
+                }
+            })
+        },
+        methods: {
+            opt: function (courseId) {
+                if (this.pageAt == 1) {
+                    $.ajax({
+                        url: 'http://localhost:8080/grade/add',
+                        type: 'POST',
+                        headers: {
+                            'token': headparam,
+                        },
+                        data: {
+                            courseId: courseId
+                        },
+                        success: function (result) {
+                            for (var i = 0; i < vm.notcourses.length; i++) {
+                                if (vm.notcourses[i].id === courseId) {
+                                    vm.courses.unshift(vm.notcourses)
+                                    vm.notcourses.splice(i, 1)
+                                    break;
+                                }
+                            }
+                            vm.$message({
+                                showClose: true,
+                                message: '选课成功',
+                                type: 'success'
+                            });
+                        },
+                        error: function () {
+                            console.log('add error')
+                        }
+                    })
+                } else {
+                    $.ajax({
+                        url: 'http://localhost:8080/grade/sub',
+                        type: 'POST',
+                        headers: {
+                            'token': headparam,
+                        },
+                        data: {
+                            courseId: courseId
+                        },
+                        success: function (result) {
+                            for (var i = 0; i < vm.courses.length; i++) {
+                                if (vm.courses[i].id === courseId) {
+                                    vm.notcourses.unshift(vm.courses)
+                                    vm.courses.splice(i, 1)
+                                    break;
+                                }
+                            }
+                            vm.$message({
+                                showClose: true,
+                                message: '退课成功',
+                                type: 'success'
+                            });
+                        },
+                        error: function () {
+                            console.log('sub error')
+                        }
+                    })
+                }
+                location.reload()
+            }
+        }
+    })
+</script>
+</body>
+</html>

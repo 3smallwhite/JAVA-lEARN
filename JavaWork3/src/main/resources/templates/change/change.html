@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../../static/lib/index.css">
+    <script src="../../static/lib/vue.js"></script>
+    <script src="../../static/lib/index.js"></script>
+    <script src="../../static/lib/axios.js"></script>
+    <script src="../../static/lib/jquery.js"></script>
+</head>
+<body>
+<div id="change" style="text-align: center">
+    <div>
+        <label>学号</label>
+        <el-input v-model="newUser.username" placeholder="请输入学号" style="width: 300px"></el-input>
+    </div>
+    <div>
+        <label>原密码</label>
+        <el-input v-model="newUser.password" placeholder="请输入密码" style="width: 300px"></el-input>
+    </div>
+    <div>
+        <label>新密码</label>
+        <el-input v-model="newUser.newPassword" placeholder="修改密码为" style="width: 300px"></el-input>
+    </div>
+    <el-button type="primary" @click="upt_password">确认</el-button>
+</div>
+
+<script>
+    let vm = new Vue({
+        el: "#change",
+        data: {
+            newUser: {
+                username: null,
+                password: null,
+                newPassword: null,
+            }
+        },
+        methods: {
+            upt_password: function () {
+                $.ajax({
+                    url: 'http://localhost:8080/user/change',
+                    type: 'POST',
+                    data: vm.newUser,
+                    success: function (result) {
+                        vm.open2(result.message);
+                        if (result.code === 1) location.href = '../../static/login/login.html'
+                    },
+                    error: function () {
+                        console.log('update password error')
+                    }
+                })
+            },
+            open2(message) {
+                this.$notify({
+                    message: message,
+                    position: 'bottom-right'
+                });
+            },
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+
+
+.el-form-item {
+    text-align: center;
+}
+
+.el-input__inner::placeholder {
+    color: red;
+}
+
+#enter {
+    position: absolute;
+    top: 50%;
+    left: 20%;
+    transform: translate(-50%,-50%);
+    width: 500px;
+    height: 400px;
+    padding:40px;
+    background: white;
+    box-sizing: border-box;
+    box-shadow: 0 15px  25px rgba(0,0,0,.5);
+
+}

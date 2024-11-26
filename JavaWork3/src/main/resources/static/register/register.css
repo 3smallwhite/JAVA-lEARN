@@ -1,0 +1,30 @@
+#page2App {
+    position: absolute;
+    top: 60%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 500px;
+}
+
+.top {
+    position: absolute;
+    height: 15%;
+    width: 100%;
+    padding:40px;
+    box-sizing: border-box;
+    box-shadow: 0 5px  5px rgba(0,0,0,.5);
+}
+
+.top h1 {
+    position: absolute;
+    top: 5%;
+    left: 10%;
+    font-family: KaiTi;
+    font-size: 300%;
+}
+
+.top div {
+    position: absolute;
+    right: 20%;
+    bottom: 20%;
+}

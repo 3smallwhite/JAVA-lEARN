@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../lib/index.css">
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/index.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="../lib/jquery.js"></script>
+</head>
+<body>
+<div id="show">
+    <el-header>
+        <h1>学生选课详情</h1>
+    </el-header>
+    <el-row style="text-align: right; line-height: 100px">
+        <el-tooltip effect="dark" content="允许对学号、姓名、专业、性别进行查找" placement="top-start">
+            <el-input v-model="findCondition" style="width: 180px"></el-input>
+        </el-tooltip>
+        <el-button type="success" @click="fin">查找</el-button>
+    </el-row>
+    <el-table
+                :data="students"
+                border="true">
+        <el-table-column
+                prop="id"
+                label="学号"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="name"
+                label="姓名"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="sex"
+                label="性别"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="majorName"
+                label="专业"
+                width="180">
+        </el-table-column>
+        <el-table-column
+                prop="telephone"
+                label="电话号">
+        </el-table-column>
+    </el-table>
+    <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage4"
+            :page-sizes="[100, 200, 300, 400]"
+            :page-size="100"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="400">
+    </el-pagination>
+</div>
+
+<style>
+    .el-page-header {
+        height: 15%;
+    }
+
+    .el-page-header div {
+        font-size: 20px;
+    }
+</style>
+
+<script>
+    const paramsString = window.location.search
+    var searchParams = new URLSearchParams(paramsString)
+    courseId = searchParams.get("courseId")
+    headparam = searchParams.get("headparam")
+    const pageSize = 3
+    let vm = new Vue({
+        el: '#show',
+        data: {
+            students: [],
+            findCondition: null,
+            currentPage: 1,
+            tot: 0,
+        },
+        created: function () {
+            $.ajax({
+                url: 'http://localhost:8080/course/admin/students/total',
+                type: 'GET',
+                headers: {
+                    'headparam': headparam
+                },
+                data: {
+                    'courseId': courseId
+                },
+                success: function (result) {
+                    vm.tot = result.data;
+                },
+                error: function () {
+                    console.log('get total students error')
+                }
+            })
+            $.ajax({
+                url: 'http://localhost:8080/course/admin/students',
+                type: 'GET',
+                headers: {
+                    'headparam': headparam
+                },
+                data: {
+                    'courseId': courseId,
+                    'pageNum': 1,
+                    'pageSize': pageSize,
+                },
+                success: function (result) {
+                    console.log(result.data)
+                    for (var i = 0; i < result.data.content.length; i++) {
+                        vm.students.push(result.data.content[i])
+                    }
+                },
+                error: function () {
+                    console.log('get students error')
+                }
+            })
+        },
+        methods: {
+            fin: function () {
+                vm.students = []
+                $.ajax({
+                    url: 'http://localhost:8080/course/admin/student/fin',
+                    type: 'GET',
+                    data: {
+                        'findCondition': vm.findCondition,
+                        'pageNum': vm.currentPage,
+                        'pageSize': pageSize
+                    },
+                    success: function (result) {
+                        for (var i = 0; i < result.data.content.length; i++) {
+                            vm.students.push(result.data.content[i])
+                        }
+                    },
+                    error: function () {
+                        console.log('find students error')
+                    }
+                })
+            }
+        },
+        watch: {
+            currentPage: function (newCurrentPage) {
+                vm.students = []
+                $.ajax({
+                    url: 'http://localhost:8080/course/admin/student/fin',
+                    type: 'GET',
+                    data: {
+                        'findCondition': vm.findCondition,
+                        'pageNum': vm.currentPage,
+                        'pageSize': pageSize
+                    },
+                    success: function (result) {
+                        console.log(result.data)
+                        for (var i = 0; i < result.data.content.length; i++) {
+                            vm.students.push(result.data.content[i])
+                        }
+                    },
+                    error: function () {
+                        console.log('find students error')
+                    }
+                })
+            },
+        }
+    })
+</script>
+</body>
+</html>

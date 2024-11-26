@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" href="../lib/index.css">
+    <script src="../lib/vue.js"></script>
+    <script src="../lib/index.js"></script>
+    <script src="../lib/axios.js"></script>
+    <script src="../lib/jquery.js"></script>
+    <link rel="stylesheet" href="./register.css">
+</head>
+<body>
+<div class="top">
+    <h1 style="display: inline">欢迎注册</h1>
+    <div style="display: inline;">
+        已有账号?
+        <a href="http://localhost:8080/login/login.html">去登入</a>
+    </div>
+
+</div>
+<div id="page2App" style="text-align: center">
+
+    <el-steps :active="active" finish-status="success" style="width: 500px;">
+        <el-step title="绑定手机号"></el-step>
+        <el-step title="填写学生信息"></el-step>
+        <el-step title="注册成功"></el-step>
+    </el-steps>
+    <label>------------------------------------------------------------------------</label>
+    <el-form v-if="active==0" label-position="right">
+        <el-form-item label="手机号码">
+            <el-input class="tip" v-model="student.telephone" :placeholder="telephone_tip"></el-input>
+        </el-form-item>
+        <div>
+            <el-button style="margin-top: 12px;" @click="check">下一步</el-button>
+        </div>
+    </el-form>
+    <el-form v-else-if="active==1" label-position="right" style="height: 400px">
+        <el-form-item label="姓名">
+            <el-input v-model="student.name" :placeholder="name_tip"></el-input>
+        </el-form-item>
+        <el-form-item label="年龄">
+            <el-input class="tip" v-model="student.age" :placeholder="age_tip"></el-input>
+        </el-form-item>
+        <el-form-item label="性别">
+            <template>
+                <el-select v-model="student.sex" placeholder="请选择">
+                    <el-option
+                            key="man"
+                            label="男"
+                            value="男">
+                    </el-option>
+                    <el-option
+                            key="women"
+                            label="女"
+                            value="女">
+                    </el-option>
+                </el-select>
+            </template>
+        </el-form-item>
+        <el-form-item label="专业">
+            <template>
+                <el-select v-model="student.majorName" placeholder="请选择">
+                    <el-option
+                            v-for="item in majors"
+                            :key="item.id"
+                            :label="item.name"
+                            :value="item.name">
+                    </el-option>
+                </el-select>
+            </template>
+        </el-form-item>
+        <el-form-item label="入学时间">
+            <el-date-picker
+                    v-model="student.enrollmentDate"
+                    type="date"
+                    style="width: 300px"
+                    placeholder="选择日期">
+            </el-date-picker>
+            <div style="text-align: center">
+                <el-button style="margin-top: 12px;" @click="rnext">上一步</el-button>
+                <el-button style="margin-top: 12px;" @click="check2">下一步</el-button>
+            </div>
+        </el-form-item>
+    </el-form>
+    <div v-else>
+        <el-button style="margin-top: 12px;" @click="rnext">上一步</el-button>
+        <el-button @click="insert();">注册</el-button>
+    </div>
+
+</div>
+
+<script>
+    var vm = new Vue({
+        el: "#page2App",
+        data: {
+            active: 0,
+
+            student: {
+                name: null,
+                age: null,
+                sex: null,
+                majorName: null,
+                enrollmentDate: new Date(),
+                telephone: null,
+            },
+            majors: [],
+            age_tip: null,
+            telephone_tip: null,
+            name_tip: null,
+        },
+        created: function () {
+            $.ajax({
+                url: 'http://localhost:8080/major/get',
+                type: 'GET',
+                data: '',
+                success: function (result) {
+                    for (let key in result.data) {
+                        vm.majors.push(result.data[key])
+                    }
+                },
+                error: function (e) {
+                    console.log('get majors error')
+                }
+            })
+        },
+        methods: {
+            rnext() {
+                this.active--;
+            },
+            next() {
+                if (this.active++ > 2) this.active = 0;
+            },
+            check: function () {
+                if (this.student.telephone === null || this.student.telephone === '' || isNaN(this.student.telephone) || this.student.telephone.length != 11) {
+                    this.student.telephone = '';
+                    this.telephone_tip = '格式错误'
+                    return;
+                }
+                $.ajax({
+                    url: 'http://localhost:8080/user/register/check',
+                    type: 'POST',
+                    data: {
+                        'telephone': vm.student.telephone
+                    },
+                    success: function (result) {
+                        if (result.code === 1) vm.next();
+                        else {
+                            vm.telephone_tip = result.message
+                            vm.student.telephone = ''
+                        }
+                    },
+                    error: function (e) {
+                        console.log('telephone exist')
+                    }
+                })
+            },
+            check2: function () {
+                if (this.student.name === null || this.student.name === '') {
+                    this.name_tip = '请输入姓名'
+                    return;
+                }
+                if (isNaN(this.student.age) || this.student.age === null || this.student.age === '') {
+                    this.student.age = ''
+                    this.age_tip = '请输入整数'
+                    return;
+                }
+                if (this.student.sex === null || this.student.enrollmentDate === null || this.student === null || this.student.sex === '' || this.student.enrollmentDate === '' || this.student.majorName === null || this.student.majorName === null) return;
+                this.next()
+            },
+            insert: function () {
+                $.ajax({
+                    url: 'http://localhost:8080/user/register',
+                    type: 'POST',
+                    data: vm.student,
+                    success: function (result) {
+                        for (let key in vm.student) {
+                            vm.student[key] = null
+                        }
+                        alert(result.message)
+                    },
+                    error: function (e) {
+                        console.log('insert error')
+                    }
+                })
+                this.next()
+                location.href='http://localhost:8080/login/login.html'
+            },
+        }
+    })
+</script>
+
+<style>
+    .el-input {
+        width: 300px;
+    }
+    #page2App {
+        text-align: left;
+    }
+    .el-input__inner::placeholder {
+        color: red;
+    }
+</style>
+</body>
+</html>
